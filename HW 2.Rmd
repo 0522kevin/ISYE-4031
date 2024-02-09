@@ -1,0 +1,228 @@
+---
+title: "HW 2"
+author: "Kevin Ahn"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Question 3.12
+
+### a. 
+
+```{r scatterplot}
+data = read.table("Table3-9.txt", header = TRUE)
+colnames(data) = c("cost", "bsize")
+plot(data$bsize, data$cost, main = "Direct Labor Cost vs. Batch Size", 
+     xlab = "Batch Size", ylab = "Direct Labor Cost", pch = 19)
+```
+
+### b. 
+
+The scatter plot suggests a simple linear regression model relating y to x, as the scatter plot presents an even "rise over run", or a linear slope.
+
+# Question 3.14
+
+### a. 
+
+```{r 314a}
+data = read.table("Table3-9.txt", header = TRUE)
+colnames(data) = c("cost", "bsize")
+x = data$bsize
+y = data$cost
+
+n = length(x)
+xSum = sum(x)
+ySum = sum(y)
+xySum = sum(x*y)
+x2Sum = sum(x^2)
+
+b1 = (n*xySum - xSum*ySum) / (n*x2Sum - (xSum^2))
+b0 = mean(y) - b1*mean(x)
+
+b0
+b1
+```
+
+### b.
+
+$b_0$, the y intercept, represents the direct labor cost when the batch size is 0. According to the data in Table 3-9, this value is $18.4875
+
+$b_1$, the slope, represents the increase in direct labor cost per increase of batch size. According to the data in Table 3-9, this value is $10.1462
+
+The interpretation of $b_0$ doesn't make practical sense because there cannot be a direct labor cost when the batch size is 0.
+
+### c.
+
+$$
+\hat{y}=b_0+b_1x
+$$
+
+### d. 
+
+$$
+\hat{y}=18.4875 + 10.14626 * 60 = 627.2631
+$$
+
+# Question 3.15
+
+### a. 
+
+$$
+\begin{aligned}
+s^2 = \frac{SSE}{n - 2}\\
+n = 12, SSE = 747\\
+s^2 = \frac{747}{12-2} = \frac{747}{10}=74.7\\
+s =\sqrt{74.7} = 8.6429
+\end{aligned}
+$$
+
+### b. 
+
+$$
+\begin{aligned}
+SSE = \sum(y-\hat{y})^2\\
+\hat{y} = 18.4875+10.14626x\\
+e_i = y_i-\hat{y}_i\\
+SSE = \sum e_i^2\\
+SSE = 746.7624
+\end{aligned}
+$$
+
+```{r 315b}
+b0 = 18.4875
+b1 = 10.14626
+y_hat = b0 + b1*x
+SSE = sum((y - y_hat)^2)
+
+SSE
+```
+
+# Question 3.19
+
+```{r 319}
+data = read.table("Table3-9.txt", header = TRUE)
+colnames(data) = c("cost", "bsize")
+x = data$bsize
+y = data$cost
+model = lm(y ~ x)
+summary(model)
+```
+
+### a. 
+
+$$
+b_0 = 18.48751\\
+b_1 = 10.14626
+$$
+
+### b.
+
+$$
+SSE = 746.7624\\
+s^2 = 74.67624\\
+s = 8.641541
+$$
+
+### c. 
+
+$$
+\begin{aligned}
+t = \frac{b_1}{S_{b_1}}\\
+b_1 = 10.14626\\
+S_{b_1} = 0.08662\\
+t = \frac{10.14626}{0.08662} = 117.135304
+\end{aligned}
+$$
+
+### d. 
+
+$$
+H_0: \beta_1 = 0\\
+H_a: \beta_1 \ne q_0\\
+\alpha = 0.05\\
+$$
+
+```{r 319d}
+alpha = 0.05
+t = qt((0.05/2), df = 10)
+t
+```
+
+$H_0$ is rejected if $|t| > t^{n - 2}_{\alpha / 2}$
+
+$$
+\begin{aligned}
+|t| = 117.1353\\
+t^{10}_{\frac{0.05}{2}} = -1.406095\\
+|t| > t^{10}_{0.025}
+\end{aligned}
+$$
+
+Null Hypothesis $H_0$ is rejected. Because $\beta_1$ isn't equal to 0, this shows that changes in x are related to the changes in the expected value of y.
+
+### f. 
+
+$$
+\begin{aligned}
+p_{value} = 2 * P(t_{10} > |t_0|)\\
+p_{value} = 2 * P(t_{10} > 117.1353) = 0\\
+p_{value} < \alpha=0.10\\
+p_{value} < \alpha=0.05\\
+p_{value} < \alpha=0.01\\
+p_{value} < \alpha=0.001
+\end{aligned}
+$$
+
+The p-value is much smaller than all the given $\alpha$ values. This means that we would reject the null hypothesis, $H_0$, in all cases provided. Rejecting all the cases concludes that the linear relationship between y and x is very strong.
+
+### g.
+
+$$
+\begin{aligned}
+CI = b_1 \pm t^{n-2}_{[\alpha/2]} * S_{b_1}\\
+lowerBound = 10.14626 - 2.228139 * 0.08662\\
+upperBound = 10.14626 + 2.228139 * 0.08662\\
+CI = (9.9532,10.3392)
+\end{aligned}
+$$
+
+Through this interval, we can be 95% confident that as x increases by 1, the amount that y increases will be within the interval of (9.9532,10.3392).
+
+### i.
+
+$$
+\begin{aligned}
+S_{b_0} = 4.67658\\
+b_0 = 18.48751\\
+t = \frac{b_0}{S_{b_0}}\\
+t = \frac{18.48751}{4.67658}\\
+t = 3.953212
+\end{aligned}
+$$
+
+### k. 
+
+$$
+\begin{aligned}
+SS_{xx} = \sum (x_i - \bar{x})^2\\
+SS_{xx} = (5 - 45.66667)^2 + (62 - 45.66667)^2 + ... + (75 - 45.66667)^2\\
+SS_{xx} = 9952.667\\
+S_{b_1} = \frac{s}{\sqrt{SS_{xx}}}\\
+S_{b_1} = \frac{8.642}{\sqrt{9952.667}}\\
+S_{b_1} = 0.08662525
+\end{aligned}
+$$
+
+## Question 2
+
+$$SSTO = \sum_{i = 1}^n (y_i - \bar y)^2 = \sum_{i = 1}^n (y_i^2 + \bar y^2 - 2 * y_i * \bar y) $$
+
+$$SSTO = \sum_{i = 1}^n y_i^2 + \sum_{i = 1}^n \bar y^2 - \sum_{i = 1}^n 2 * y_i * \bar y $$
+$$SSTO = \sum_{i = 1}^n y_i^2 + \sum_{i = 1}^n \bar y^2 - 2y * \sum_{i = 1}^ny_i $$
+$$SSTO = \sum_{i = 1}^n y_i^2 + n * \bar y^2 - 2 * \bar y^2 * n $$
+$$SSTO = \sum_{i = 1}^n y_i^2 - n * \bar y^2 $$
+$$\therefore \sum_{i = 1}^n (y_i - \bar y)^2 = \sum_{i = 1}^n y_i^2 - n * \bar y^2$$

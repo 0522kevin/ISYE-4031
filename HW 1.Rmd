@@ -1,0 +1,296 @@
+---
+title: "HW 1"
+author: "Kevin Ahn"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Question 2.8
+
+### a.
+
+$z_{[.05]} = P(Z \ge \alpha) = 0.05$
+$P(Z < \alpha) = 0.95$
+
+From Appendix A
+
+$P(Z < 1.64) = 0.9495$ $P(Z < 1.65) = 0.9505$
+$\alpha$ is appromixately 1.645
+
+From R
+
+```{r 28a}
+qnorm(0.95)
+```
+
+### b. 
+
+$z_{[.02]} = P(Z \ge \alpha) = 0.02$
+$P(Z < \alpha) = 0.98$
+
+From Appendix A
+
+$P(Z < 2.05) = 0.9798$ $P(Z < 2.06) = 0.9803$
+$\alpha$ is appromixately 2.055
+
+From R
+```{r 28b}
+qnorm(0.98)
+```
+
+### c. 
+
+$z_{[.01]} = P(Z \ge \alpha) = 0.01$
+$P(Z < \alpha) = 0.99$
+
+From Appendix A
+
+$P(Z < 2.32) = 0.9898$ $P(Z < 2.33) = 0.9901$
+$\alpha$ is appromixately 2.327
+
+From R
+```{r 28c}
+qnorm(0.99)
+```
+
+### d. 
+
+$z_{[.0055]} = P(Z \ge \alpha) = 0.005$
+$P(Z < \alpha) = 0.995$
+
+From Appendix A
+
+$P(Z < 2.57) = 0.9949$ $P(Z < 2.58) = 0.9951$
+$\alpha$ is appromixately 2.575
+
+From R
+```{r 28d}
+qnorm(0.995)
+```
+
+# Question 2.9
+
+### a.
+
+From Appendix A
+
+$t_{[0.05]}^{(7)} = 1.895$
+
+From R
+
+```{r 29a}
+qt(0.95, 7)
+```
+
+### b.
+
+From Appendix A
+
+$t_{[0.01]}^{(7)} = 2.998$
+
+From R
+
+```{r 29b}
+qt(0.99, 7)
+```
+
+### c. 
+
+From Appendix A
+
+$t_{[0.005]}^{(7)} = 3.499$
+
+From R
+
+```{r 29c}
+qt(0.995, 7)
+```
+
+# Question 2.10
+
+### a.
+
+From Appendix A
+
+$F_{[0.05]}^{(2,5)} = 5.79$ 
+
+From R
+```{r 210a}
+qf(0.95, 2, 5)
+```
+
+### b.
+
+From Appendix A
+
+$F_{[0.05]}^{(5,2)} = 19.30$ 
+
+From R
+
+```{r 210b}
+qf(0.95, 5, 2)
+```
+
+# Question 2.11
+
+### a.
+
+From Appendix A
+
+$\chi^2_{[0.05]}(3) = 7.815$
+
+From R
+
+```{r 211a}
+qchisq(0.95, 3)
+```
+
+### b.
+
+From Appendix A
+
+$\chi^2_{[0.01]}(2) = 9.21$
+
+From R
+
+```{r 211b}
+qchisq(0.99, 2)
+```
+
+# Question 2.12
+
+### a. 
+
+$P(X < 250,000) = P(Z < \frac{250,000 - 300,000}{20,000}) = P(Z < -2.5)$
+
+```{r 212a}
+pnorm(-2.5)
+```
+
+### b.
+
+$P(260,000 \le X \le 330,000) = P(\frac{260,000 - 300,000}{20,000} \le Z \le \frac{330,000 - 300,000}{20,000}) = P(-2 \le Z \le 1.5)$
+
+```{r 212b}
+pnorm(1.5) - pnorm(-2)
+```
+
+### c. 
+
+$P(X > 346,000) = P(Z > \frac{346,000 - 300,000}{20,000}) = P(Z > 2.3) = 1 - P(Z \le 2.3)$
+
+```{r 212c}
+1 - pnorm(2.3)
+```
+
+# Question 2.16
+
+### a. 
+
+For 90% confidence interval
+```{r 216a 1}
+n = 81
+y_bar = 57.8
+s = 6.02
+confidence_interval = 0.9
+standard_error = s / sqrt(n)
+critical = qnorm((1 + confidence_interval) / 2)
+error = critical * standard_error
+interval = c(y_bar - error, y_bar + error)
+print(interval)
+```
+
+For 95% confidence interval
+```{r 216a 2}
+n = 81
+y_bar = 57.8
+s = 6.02
+confidence_interval = 0.95
+standard_error = s / sqrt(n)
+critical = qnorm((1 + confidence_interval) / 2)
+error = critical * standard_error
+interval = c(y_bar - error, y_bar + error)
+print(interval)
+```
+
+For 98% confidence interval
+```{r 216a 3}
+n = 81
+y_bar = 57.8
+s = 6.02
+confidence_interval = 0.98
+standard_error = s / sqrt(n)
+critical = qnorm((1 + confidence_interval) / 2)
+error = critical * standard_error
+interval = c(y_bar - error, y_bar + error)
+print(interval)
+```
+
+For 99% confidence interval
+```{r 216a 4}
+n = 81
+y_bar = 57.8
+s = 6.02
+confidence_interval = 0.99
+standard_error = s / sqrt(n)
+critical = qnorm((1 + confidence_interval) / 2)
+error = critical * standard_error
+interval = c(y_bar - error, y_bar + error)
+print(interval)
+```
+
+### b. 
+
+The 95% confidence interval is (56.489, 59.111). As the highest value within the interval is less than 60, National Motors can be 95% confident that the $\mu$ is less than 60 feet.
+
+### c.
+
+The 98% confidence interval is (56.24393, 59.35607). As the highest value within the interval is less than 60, National Motors can be 98% confident that the $\mu$ is less than 60 feet.
+
+# Question 2.17
+
+### a.
+
+$H_0: \mu = 16$
+$H_1: \mu \ne 16$
+$n = 6, \bar y = 15.7665, s = 0.1524$
+
+$t_0 = \frac{\bar y - H_0}{s / \sqrt{n}} = \frac{15.7665 - 16}{0.1524 / \sqrt{6}} = \frac{-0.2335}{0.06221} = -3.753$
+$t_{[0.025]}^{(5)} = 2.571$
+$|-3.753| > 2.571$
+$\therefore$ Reject H_0
+The process should be readjusted.
+
+### b.
+
+$t_0 = \frac{\bar y - H_0}{s / \sqrt{n}} = \frac{15.7665 - 16}{0.1524 / \sqrt{6}} = \frac{-0.2335}{0.06221} = -3.753$
+$t_{[0.005]}^{(5)} = 4.032$
+$|-3.753| < 4.032$
+$\therefore$ Fail to reject H_0
+The process shouldn't be readjusted.
+
+# Question 2.20
+
+### a. 
+
+$H_0: \mu = 3.5$
+$H_1: \mu > 3.5$
+
+### b.
+
+```{r 220b}
+p = c(7, 4, 6, 7, 5, 4, 9)
+mean(p)
+sd(p)
+```
+
+$\bar x = 6, s = 1.825742$
+$t_0 = \frac{\bar x - 3.5}{s / \sqrt{n}} = \frac{6 - 3.5}{1.825742 / \sqrt{7}} = \frac{2.5}{0.69} = 3.6$
+$t_{[0.005]}^{(6)} = 3.707$
+$3.6 < 3.707$
+$\therefore$ Fail to reject H_0
+This means that the Federal banking official's claim that the mean bad debt ratio for Ohio banks is higher than the mean for all federally insured banks is not reasonable.
