@@ -1,0 +1,258 @@
+---
+title: "HW 4"
+author: "Kevin Ahn"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Question 4.1
+
+### a.
+
+The data plots in Figure 2.4 indicate that this model might be reasonable because the plots indicate that there is a positive correlation between price and size, and another positive correlation between price and rating. As the y-axis for both plots is the Price, it is reasonable to combine the two x-axis; Size and Rating.
+
+### b.
+
+$\mu_{y | x_1 = 20, x_2 = 9} = \beta_0 + \beta_1(20) + \beta_2(9)$ means that the mean price with a size of $2000 ft^2$ and a rating of 9.
+
+### c.
+
+$\beta_0$ is the intercept of the model. This value refers to the price of a house with a size of $0 ft^2$ and a rating of 0.
+
+$\beta_1$ is the slope of the Size parameter. $\beta_2$ is the slope of the Rating parameter. These are used to show the change in Price as Size and Rating increases by one unit.
+
+### d.
+
+$\varepsilon$ is the error term in this model. Factors such as public transport, shopping mall, emergency room, highway exits, etc. can influence the price without being included in the model.
+
+# Question 4.3
+
+```{r 43}
+data = read.table("4-10.txt", header = TRUE)
+attach(data)
+model = lm(Price ~ HomeSize + Rating)
+summary(model)
+anova(model)
+```
+
+### a.
+
+$\beta_0 = b_0 = 29.3468$ $b_0$ is the y-intercept of the model, or the price when size and rating is both 0.
+
+$\beta_1 = b_1 = 5.6128$ $b_1$ is the slope of the size parameter, or the increase of price per increase of size by one unit which is $\$ 5612.8$ per $100 ft^2$.
+
+$\beta_2 = b_2 = 3.8344$ $b_2$ is the slope of the rating parameter, or the increase of price per increase of rating by one unit which is $\$ 3.834.4$ per 1 rating score.
+
+### b.
+
+$\hat y = 29.3468 + 5.6128 * x_1 + 3.8344 * x_2 = 29.3468 + 5.6128 * 20 + 3.8344 * 8 = \$ 172.28$
+
+# Question 4.7
+
+### a.
+
+$t_j = \frac{b_j}{s_{b_j}}$
+
+$b_0 = 29.3468$
+
+$s_{b_0} = 4.8914$
+
+$t_0 = 8.851339$
+
+### c.
+
+$\alpha = 0.01$
+
+Reject null hypothesis if $t_{\alpha/2}^{n-(k+1)} < |t_j|$
+
+```{r 47c}
+n = length(Price)
+k = 2
+qt(0.995, n - (k + 1))
+```
+
+$t_{0.005}^7 = 3.499483$
+
+$t_0 = 5.999673 > t_{0.005}^{7} = 3.499483$
+
+$t_1 = 24.56368 > t_{0.005}^{7} = 3.499483$
+
+$t_2 = 8.851339 >> t_{0.005}^{7} = 3.499483$
+
+Reject null hypothesis with an alpha level of 0.01
+
+### d.
+
+pval = $2 * P(t^{n-(k+1)}> |t_j|) = 2(1- P(t^{7}> |t_j|))$
+
+$j = 0; pval = 2(1 - P(t^7 > |5.999673|)) = 2(1 - P(t^7 > 5.999673))$
+
+```{r 47d1}
+2 * (1 - pt(5.999673, 7))
+```
+
+pval is smaller than 0.1, 0.05, 0.01, and 0.001, which means we can reject $H_0$ at all alpha levels mentioned. This also means that $\beta_0$ is significant independent variable.
+
+$j = 1; pval = 2(1 - P(t^7 > |24.56368|)) = 2(1 - P(t^7 > 24.56368))$
+
+```{r 47d2}
+2 * (1 - pt(24.56368, 7))
+```
+
+pval is smaller than 0.1, 0.05, 0.01, and 0.001, which means we can reject $H_0$ at all alpha levels mentioned. This also means that $\beta_1$ is significant independent variable.
+
+$j = 2; pval = 2(1 - P(t^7 > |8.851339|)) = 2(1 - P(t^7 > 8.851339))$
+
+```{r 47d3}
+2 * (1 - pt(8.851339, 7))
+```
+
+pval is smaller than 0.1, 0.05, 0.01, and 0.001, which means we can reject $H_0$ at all alpha levels mentioned. This also means that $\beta_2$ is significant independent variable.
+
+### f.
+
+$CI = b_j - t_{\alpha / 2}^{n - (k + 1)} * s_{b_j} \le \beta_j \le b_j + t_{\alpha / 2}^{n - (k + 1)} * s_{b_j}$
+
+$CI = 29.3468 - t_{0.005}^7 *  4.8914 \le \beta_0 \le 29.3468 + t_{0.005}^7 * 4.8914 = 12.22943 \le \beta_0 \le 46.46417$
+
+The true intercept is within $(12.22943, 46.46417)$ with 99% confidence
+
+$CI = b_1 - t_{0.005}^7 * s_{b_1} \le \beta_1 \le b_1 + t_{0.005}^7 * s_{b_1}$
+
+$CI = 5.6128 - 3.499483 * 0.2285 \le \beta_1 \le 5.6128 + 3.499483 * 0.2285 = 4.813168 \le \beta_1 \le 6.412432$
+
+The slope of the size variable is within $(4.813168, 6.412432)$ with 99% confidence
+
+$CI = b_2 - t_{0.005}^7 * s_{b_2} \le \beta_2 \le b_2 + t_{0.005}^7 * s_{b_2}$
+
+$CI = 3.8344 -3.499483 * 0.4332 \le \beta_2 \le 3.8344 + 3.499483 * 0.4332 = 2.318424 \le \beta_2 \le 5.350376$
+
+The slope of the rating variable is within (2.318424, 5.350376)
+
+# Question 4.9
+
+### a. 
+
+```{r 49a}
+predict.lm(model, newdata = data.frame(HomeSize = 20, Rating = 8), interval = "confidence")
+```
+
+point estimate = $\$ 172,278.28$
+
+95% CI = (168.56, 175.99)
+
+### b.
+
+```{r 49b}
+predict.lm(model, newdata = data.frame(HomeSize = 20, Rating = 8), interval = "prediction")
+```
+
+point estimate = $\$ 172,278.28$
+
+95% CI = (163.76, 180.80)
+
+### c.
+
+$MSE = 10.5$
+
+$s = \sqrt{MSE} = 3.24037$
+
+
+```{r 49c}
+x = cbind(rep(1, n), HomeSize, Rating)
+b = matrix(c(29.3468, 5.6128, 3.8344), ncol = 1)
+x0 = matrix(c(1, 20, 8), ncol = 1)
+dv = t(x0) %*% solve(t(x) %*% x) %*% x0
+yHat = t(x0) %*% b
+dv
+yHat
+```
+
+99% CI = $\hat y - t_{\alpha / 2}^{n - (k + 1)} * s * \sqrt{DV} \le y \le \hat y + t_{\alpha / 2}^{n - (k + 1)} * s * \sqrt{DV}$
+
+99% CI = $172.278 - t_{0.01 / 2}^{10 - (2 + 1)} * 3.24037 * \sqrt{0.2347058} \le y \le 172.278 + t_{0.01 / 2}^{10 - (2 + 1)} * 3.24037 * \sqrt{0.2347058}$
+
+99% CI = (166.7844, 177.7716)
+
+99% PI = $\hat y - t_{\alpha / 2}^{n - (k + 1)} * s * \sqrt{1 + DV} \le y \le \hat y + t_{\alpha / 2}^{n - (k + 1)} * s * \sqrt{1 + DV}$
+
+99% PI = $172.278 - t_{0.01 / 2}^{10 - (2 + 1)} * 3.24037 * \sqrt{1.2347058} \le y \le 172.278 + t_{0.01 / 2}^{10 - (2 + 1)} * 3.24037 * \sqrt{1.2347058}$
+
+99% PI = (159.6777, 184.8783)
+
+# Question B.5
+
+```{r b5}
+a = matrix(c(1, 5, 10, 15, 20), nrow = 1)
+b = matrix(c(5000, 1000, 750, 2000, 500), ncol = 1)
+c = matrix(c(0.10, 0, 0, 0, 0, 0, 0.2, 0, 0, 0, 0, 0, 0.3, 0, 0, 0, 0, 0, 0.4, 0, 0, 0, 0, 0, 0.5), nrow = 5, byrow = TRUE)
+```
+
+### a.
+
+```{r b5a}
+c %*% b
+```
+
+### b.
+
+```{r b5b}
+a %*% c
+```
+
+### c.
+
+```{r b5c}
+a %*% c %*% t(a)
+```
+
+# Question 2
+
+$$
+\begin{aligned}
+SSE = \sum_{i = 1}^{n} (y_i - \hat y_i)^2\\
+SSE = \sum_{i = 1}^{n} (\varepsilon)^2 = \varepsilon^2\\
+\varepsilon^{'} * \varepsilon = (\vec y - X \vec B)(\vec y - X \vec B)\\
+(\vec y - X \vec B)(\vec y - X \vec B) = y^{'}y - y^{'}X \vec \beta - \hat \beta X^{'} y + \hat \beta^{'} X^{'} X \hat \beta\\
+\hat \beta^{'} = y^{'} X(X^{'} X)^{-1}\\
+y^{'}y - y^{'}X \vec \beta - \hat \beta X^{'} y + \hat \beta^{'} X^{'} X \hat \beta = y^{'}y - y^{'} X \hat \beta - \hat \beta X^{'} y + y^{'} X(X^{'} X)^{-1} (X^{'} X) \beta\\
+y^{'}y - y^{'} X \hat \beta - \hat \beta X^{'} y + y^{'} X(X^{'} X)^{-1} (X^{'} X) \beta = y^{'}y - y^{'} X \hat \beta - \hat \beta X^{'} y + y^{'} X \hat \beta \\
+y^{'}y - y^{'} X \hat \beta - \hat \beta X^{'} y + y^{'} X \hat \beta = y^{'} y - \hat \beta X^{'} y\\
+\sum_{i = 1}^{n} (y_i - \hat y_i)^2 = y^{'} y - \hat \beta X^{'} y
+\end{aligned}
+$$
+
+# Bonus Question 3
+
+$$
+\begin{bmatrix}
+111 & 112 & 113 & 114 & 115 & 116 & 117 & 118 & 119 \\
+120 & 121 & 122 & 123 & 124 & 125 & 126 & 127 & 128 \\
+129 & 130 & 131 & 132 & 133 & 134 & 111 & 112 & 113 \\
+114 & 115 & 116 & 117 & 118 & 119 & 120 & 121 & 122 \\
+123 & 124 & 125 & 126 & 127 & 128 & 129 & 130 & 131 \\
+132 & 133 & 134 & 111 & 112 & 113 & 114 & 115 & 116 \\
+117 & 118 & 119 & 120 & 121 & 122 & 123 & 124 & 125 \\
+126 & 127 & 128 & 129 & 130 & 131 & 132 & 133 & 134 \\
+111 & 112 & 113 & 114 & 115 & 116 & 117 & 118 & 119 \\
+120 & 121 & 122 & 123 & 124 & 125 & 126 & 127 & 128 \\
+129 & 130 & 131 & 132 & 133 & 134 & 111 & 112 & 113 \\
+114 & 115 & 116 & 117 & 118 & 119 & 120 & 121 & 122 \\
+123 & 124 & 125 & 126 & 127 & 128 & 129 & 130 & 131 \\
+132 & 133 & 134 & 111 & 112 & 113 & 114 & 115 & 116 \\
+117 & 118 & 119 & 120 & 121 & 122 & 123 & 124 & 125 \\
+126 & 127 & 128 & 129 & 130 & 131 & 132 & 133 & 134 \\
+111 & 112 & 113 & 114 & 115 & 116 & 117 & 118 & 119 \\
+120 & 121 & 122 & 123 & 124 & 125 & 126 & 127 & 128 \\
+129 & 130 & 131 & 132 & 133 & 134 & 111 & 112 & 113 \\
+114 & 115 & 116 & 117 & 118 & 119 & 120 & 121 & 122 \\
+123 & 124 & 125 & 126 & 127 & 128 & 129 & 130 & 131 \\
+132 & 133 & 134 & 111 & 112 & 113 & 114 & 115 & 116 \\
+117 & 118 & 119 & 120 & 121 & 122 & 123 & 124 & 125 \\
+126 & 127 & 128 & 129 & 130 & 131 & 132 & 133 & 134 \\
+\end{bmatrix}_{24x9}
+$$

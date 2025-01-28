@@ -1,0 +1,149 @@
+---
+title: "HW 8"
+author: "Kevin Ahn"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+# Question 8.10
+
+```{r 810}
+data = read.table("6-2.txt", header = TRUE)
+```
+
+## a. 
+
+$$
+\begin{aligned}
+l_0 = 204.8 \\
+b_0 = 6.9406
+\end{aligned}
+$$
+
+## b.
+
+SSE = 27480.111
+
+## c.
+
+When $\alpha = 0.03418334$ and $\gamma = 0$, SSE = 24749.807
+
+## d.
+
+$$
+\begin{aligned}
+\hat y_{25} = 383.545 \\
+\hat y_{26} = 390.486 \\
+\hat y_{27} = 397.426 \\
+s = 33.54088946
+\end{aligned}
+$$
+s = 33.54088946
+
+95% CI for $y_{25}$
+$$
+\begin{aligned}
+(l_{24} + b_{24}) \pm z_{0.025} * s \\
+383.545 \pm 1.96 * 33.54088946 = [317.8052, 449.2855]
+\end{aligned}
+$$
+95% CI for $y_{26}$
+$$
+\begin{aligned}
+(l_{24} + b_{24} * 2) \pm z_{0.025} * s * \sqrt{1 + \alpha^2(1 + \gamma)^2}\\
+390.486 \pm 1.96 * 33.54088946 * \sqrt{1 + 0.03418334^2 * (1 + 0)^2} = [324.7073, 456.2644]
+\end{aligned}
+$$
+95% CI for $y_{27}$
+$$
+\begin{aligned}
+(l_{24} + b_{24} * 3) \pm z_{0.025} * s \sqrt{1 + \alpha^2(1 + \gamma)^2 + \alpha^2(1 + 2 \gamma)^2}\\
+397.4264339 \pm 1.96 * 33.54088946 * \sqrt{1 + 33.54088946^2(1 + 0)^2 + 33.54088946^2(1 + 2*0)^2} = [331.6095, 463.2433]
+\end{aligned}
+$$
+
+## EXT.
+
+```{r 810ext}
+library(forecast)
+model = holt(data$CalSales, h = 4)
+summary(model)
+autoplot(model) + autolayer(fitted(model), series = "Fitted")
+predict(model)
+```
+
+$$
+\begin{aligned}
+\alpha = 1.000135E-4 \\
+\gamma = 1.000072E-4
+\end{aligned}
+$$
+
+# Question 8.22
+
+```{r 822}
+data = read.table("7-1.txt", header = TRUE)
+```
+
+## b.
+
+$$
+\begin{aligned}
+l_0 = 310.97 \\
+b_0 = 13.646
+\end{aligned}
+$$
+
+## c.
+
+$$
+\begin{aligned}
+sn_{-11} = 0.513674042 \\
+sn_{-10} = 0.612335315 \\
+sn_{-9} = 0.62596072 \\
+sn_{-8} = 0.710616666 \\
+sn_{-7} = 0.597970402 \\
+sn_{-6} = 1.005525347 \\
+sn_{-5} = 1.485044862 \\
+sn_{-4} = 1.680972959 \\
+sn_{-3} = 1.956288565 \\
+sn_{-2} = 1.261284895 \\
+sn_{-1} = 0.978078588 \\
+sn_0 = 0.572247639 \\
+\end{aligned}
+$$
+
+## d.
+
+When $\alpha = 0.699814981$, $\gamma = 0$, and $\delta = 0$, SSE = 5248.547801
+
+## e.
+
+$$
+\hat y_{37} = 398.8835072 \\
+\hat y_{38} = 483.8528787 \\
+\hat y_{39} = 503.1611781 \\
+\hat y_{40} = 580.9065511 \\
+s_r = 0.038994252
+$$
+
+95% PI for $y_{37}$
+
+$$
+\begin{aligned}
+\hat y_{37} \pm z_{0.025} * s_r * \sqrt{c_\tau} * sn_{T + \tau - L} \\
+398.8835072 \pm 1.96 * 0.038994252 *\sqrt{c_1} *sn_{25} \\
+c_1 = (l_t + b_t)^2 = 602999.4554 \\
+y_{37} = 398.8835072 \pm 1.96 * 0.038994252 * \sqrt{602999.4554} * 0.513674042 = [368.3973, 429.3697]
+\end{aligned}
+$$
+
+The rest of the interval can be calculated similarly to above
+
+$$
+\begin{aligned}
+y_{38} = [438.9713925, 528.7343649] \\
+y_{39} = [449.7322308, 556.5901253] \\
+y_{40} = [512.5130797, 649.3000224]
+\end{aligned}
+$$

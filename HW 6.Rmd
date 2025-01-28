@@ -1,0 +1,197 @@
+---
+title: "HW 6"
+author: "Kevin Ahn"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+# Question 5.9
+
+## 1.
+
+```{r 59i}
+data = read.table("5-11.txt", header = TRUE)
+attach(data)
+plot(Desktops, ServTime, ylab = "Service Time", xlab = "Number of desktops", pch = 19)
+```
+
+## 2.
+
+```{r 59ii}
+model = lm(ServTime ~ Desktops)
+summary(model)
+e = resid(model)
+plot(Desktops, e, ylab = "Residuals", xlab = "Number of Desktops", pch = 19)
+abline(0, 0, lwd = 3)
+library(nortest)
+ad.test(e)
+qqnorm(e, pch = 19, main = "QQ plot of residuals")
+qqline(e)
+```
+
+## 3.
+
+Constant variance assumption states that the variability in the residuals remains constant over the variables. The scatter plot of residuals vs. # of desktops shows the assumption is violated as the points are not spread out evenly.
+
+Normality assumption states that the residuals from the regression model follow a normal distribution. The QQ plot shows that the residuals lie among the diagonal line, indicating that the residuals have a normal distribution. This is also backed by using the Anderson-Darling test.
+
+## 4.a.
+
+```{r 59iiii}
+ServTime1 = ServTime^0.5
+ServTime2 = ServTime^0.25
+ServTime3 = log(ServTime)
+model2 = lm(ServTime1 ~ Desktops)
+model3 = lm(ServTime2 ~ Desktops)
+model4 = lm(ServTime3 ~ Desktops)
+e2 = resid(model2)
+qqnorm(e2, pch = 19)
+qqline(e2)
+e3 = resid(model3)
+qqnorm(e3, pch = 19)
+qqline(e3)
+e4 = resid(model4)
+qqnorm(e4, pch = 19)
+qqline(e4)
+```
+
+model2 shows that the normality assumption is met. The points of model2 lies on the normal probability line, or are very close to the line. 
+
+### 4. b.
+
+```{r 59iiii2}
+plot(Desktops, e2, ylab = "Residuals", xlab = "Number of Desktops", pch = 19)
+abline(0, 0, lwd = 3)
+plot(Desktops, e3, ylab  = "Residuals", xlab = "Number of Desktops", pch = 19)
+abline(0,0, lwd = 3)
+plot(Desktops, e4, ylab  = "Residuals", xlab = "Number of Desktops", pch = 19)
+abline(0,0, lwd = 3)
+```
+
+model4 does a good job of minimizing the variance compared to others. model4 least violates the constant variance assumption.
+
+# Question 5.15
+
+```{r 515}
+data = read.table("5-6.txt", header = TRUE)
+data2 = data[-c(14),]
+attach(data2)
+model = lm(Hours ~ Xray + BedDays + Length)
+summary(model)
+```
+
+## a.
+
+```{r 515a}
+e = resid(model)
+qqnorm(e)
+qqline(e)
+plot(fitted(model), e, xlab = "Fitted values", ylab = "Residual values", pch = 19)
+plot(BedDays, e, xlab = "Bed Days", ylab = "Residual values", pch = 19)
+plot(Length, e, xlab = "Length", ylab = "Residual values", pch = 19)
+```
+
+## b.
+
+```{r 515b}
+values = hatvalues(model)
+k = 3
+n = length(data2$Xray)
+outliers = values[values > (2 * (k + 1) / n)]
+outliers
+```
+
+Hospital 14, 15, 16 are the outliers
+
+## c.
+
+$SDR = e_i * \sqrt{\frac{n - k - 2}{SSE * (1 - h_i) - e_i^2}}$
+
+```{r 515c}
+SDR = rstudent(model)
+t1 = qt(0.995, n - k - 2)
+t2 = qt(0.975, n - k - 2)
+outliers1 = SDR[abs(SDR) > t1]
+outliers1
+outliers2 = SDR[abs(SDR) > t2]
+outliers2
+```
+
+There are no strong evidence any hospitals are outliers. Hospital 12 may be an outlier, but there are no strong evidence to support this claim.
+
+## d.
+
+```{r 515d}
+cd = cooks.distance(model)
+f1 = qf(0.5, k + 1, n - k - 1)
+f2 = qf(0.2, k + 1, n - k - 1)
+influence = cd[cd > f1]
+influence
+noInfluence = cd[cd < f2]
+noInfluence
+```
+
+Hospital 15 and 16 are influential. Other hospitals are not influential.
+
+## e.
+
+```{r 515e}
+data = read.table('5-6.txt', header=TRUE)
+attach(data)
+model1 = lm(Hours ~ Xray + BedDays + Length)
+data2 = data2[-14,]
+model2 = lm(Hours ~ Xray + BedDays + Length, data = data2)
+cd1 = cooks.distance(model1)
+cd2 = cooks.distance((model2))
+cd1
+cd2
+```
+
+Cook's Distance is an indicator of how an observation influences the fit of a regression model. A large value for Cook's Distance for an observation suggests that this observation is significant. 
+
+0.8972924414 < 4.217832724
+
+Hospital 16 is more influential in the model without Hospital 14 compared to the model with hospital 14.
+
+# Question 5.16
+
+```{r 516}
+sequence = c(rep(0, 13), rep(1, 4))
+data["DL"] = sequence
+attach(data)
+model = lm(Hours ~ Xray + BedDays + Length + DL)
+summary(model)
+```
+
+## a.
+
+$b_4 = 2871.78284$. This value is much higher than $b_1$, $b_2$, and $b_3$. Because the size of the hospital is causing a bigger change compared to other variables , we can attribute it to the inefficiency within large hospitals.
+
+## b.
+
+The fitted value for hospital 14 must be $\hat y = \$ 10,077.03$. Because this value is close to the original value of $ 10,343.81, it should not be considered an outlier. 
+
+## c.
+
+```{r 516c}
+cd = cooks.distance(model)
+cd
+```
+
+Hospital 15 has the highest Cook's Distance value of 1.421698. Cook's Distance value for the model with all hospitals and no dummy variables was 5.0329, which is higher than the current value. This suggests that the new model is better.
+
+## d.
+
+Model 1 (dummy variable) = [15175, 17030] 
+
+Model 2 (no hospital 14) = [14906, 16886]
+
+Model 3 (entire dataset) = [14511, 17618]
+
+Shortest prediction interval = min(17030 - 15175, 16886 - 14906, 17618 - 14511) = 1855 
+
+Model 1 returns the shortest prediction interval.
+
+## f.
+
+The model with dummy variables shows that all variables are significant, has the highest F statistic value, and the lowest p-value compared to other models. This model is outperforms the others.

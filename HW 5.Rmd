@@ -1,0 +1,257 @@
+---
+title: "HW 5"
+author: "Kevin Ahn"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+# Question 4.13
+
+```{r 413}
+data = read.table("4-10.txt", header = TRUE)
+attach(data)
+model = lm(Price ~ HomeSize + Rating + I(Rating^2))
+summary(model)
+```
+
+### a.
+
+```{r 413a1}
+plot(HomeSize, Price, xlab = "Home Size", pch = 16, main = "Price vs. Home Size")
+```
+
+```{r 413a2}
+plot(Rating, Price, xlab = "Rating", pch = 16, main = "Price vs. Rating")
+```
+
+The "Price vs. Home Size" plot shows a positive linear correlation, but the "Price vs. Rating" plot shows a different correlation.
+
+Using the estimate from the summary output,
+
+$$
+\begin{aligned}
+\beta_0 = 19.0737\\
+\beta_1 = 5.5596\\
+\beta_2 = 9.229\\
+\beta_3 = -0.5129
+\end{aligned}
+$$
+
+The fitted model is Price = $19.0737 + 5.5596 * \hat {Home Size} + 9.2229 * \hat {Rating} - 0.5129 * \hat {Rating^2}$
+
+### b.
+
+Overall F-test p-value = $3.529 * 10^{-8}$, and all the individual t-test p-value are all $\le 0.05$. These p-values indicate that these independent variables are significant.
+
+### c.
+
+```{r 413c}
+predict.lm(model, newdata = data.frame(HomeSize = 20, Rating = 8), interval = "prediction")
+```
+
+Point Estimate = $\$ 172,222.30$
+
+95% PI = (166,366.80, 176,077.90)
+
+The prediction interval will correctly predict the price of a house with $2000 ft^2$ and a rating of 8 to be between $\$ 166,366.80$ and $\$ 176,077.90$ 95% of the time.
+
+# Question 4.15
+
+### a.
+
+```{r 415}
+model = lm(Price ~ HomeSize + Rating + I(Rating^2) + HomeSize * Rating)
+summary(model)
+```
+
+The p-value for $x_1x_2$ is much higher compared to other independent variables, which shows that the independent variable $x_1x_2$ is less significant compared to others. 
+
+### b.
+
+```{r 415b}
+predict.lm(model, newdata = data.frame(HomeSize = 20, Rating = 8), interval = "prediction")
+```
+
+Point Estimate = $\$ 171,750.70$
+
+95% PI = (168,836.00, 174,655.40)
+
+The interval of this prediction interval is smaller than the prediction interval in Question 4.15 c. This suggests that the model for this question is more accurate than the interval for the previous question.
+
+# Question 4.20
+
+### a.
+
+The plot indicates that the model $y = \beta_0 + \beta_1x + \beta_2D_s + \varepsilon$ appropriately describe the observe data because it captures the linear relationship between firm size and months while accounting the difference between mutual and stock companies using a dummy variable.
+
+### b.
+
+$\beta_2$ is the difference between the two companies, when the rest of the parameters are equal. If $\beta_2$ is negative, it shows stock companies' speed in adoption being lower, or slower than mutual companies' speed in adoption. If $\beta_2$ is zero, it shows stock companies' speed in adoption being equal to mutual companies' speed in adoption. If $\beta_2$ is positive, it shows stock companies' speed in adoption being higher, or faster than mutual companies' speed in adoption.
+
+### c.
+
+```{r 420c}
+data = read.table("4-16.txt", header = TRUE)
+attach(data)
+model = lm(MonthElapsed ~ Size + factor(DS))
+summary(model)
+```
+
+$$
+\begin{aligned}
+H_0: \beta_2 = 0\\
+H_1: \beta_2 \ne 0\\
+\end{aligned}
+$$
+$\beta_2 = 8.055469$ with a p-value of $3.74*10^{-5}$. This p-value is lower than both $\alpha = 0.05$ and $\alpha = 0.01$. This provides enough reason to reject the null hypothesis.
+
+95% CI: $b_2 - t_{\alpha / 2}^{n - (k + 1)} * s_{b_2} \le \beta_2 \le b_2 + t_{\alpha / 2}^{n - (k + 1)} * s_{b_2}$
+
+```{r 420d}
+n = length(DS)
+qt(0.975, n - (2 + 1))
+```
+
+95% CI: $8.055469 - 2.109816 * 1.459106 \le \beta_2 \le 8.055469 + 2.109816 * 1.459106$
+
+95% CI: (4.977024, 11.13391)
+
+### d.
+
+A p-value of 0.9821 means that the probability of rejecting the variable's significance is 98.21%. This means that the variable $xDs$ is not significant to the model.  
+
+# Question 4.21
+
+```{r 421}
+data = read.table("4-17.txt", header = TRUE)
+attach(data)
+model = lm(Sales ~ factor(DM) + factor(DT))
+summary(model)
+```
+
+### a. 
+
+The regression model with dummy variable is as follows.
+
+$y = \beta_B + \beta_M D_M + \beta_T D_T + \varepsilon$
+
+$D_M$ = 1 if middle display height is used, 0 otherwise.
+$D_T$ = 1 if top display height is used, 0 otherwise.
+
+If bottom display height is used, 
+
+$D_M$ and $D_T$ both equal 0. This leads the regression model to be the following.
+
+$y = \beta_b + \varepsilon$ 
+
+This means that the mean sales for bottom display height $\mu_B$ is equal to $\beta_B$, $\mu_B = \beta_B$
+
+If middle display height is used, 
+
+$D_M = 1$ and $D_T = 0$. This leads the regression model to be the following.
+
+$y = \beta_b + \beta_m + \varepsilon$
+
+This means that the mean sales for middle display height is $\mu_M = \beta_B + \beta_M$
+
+If top display height is used,
+
+$D_T = 1$ and $D_M = 0$. This leads the regression model to be the following
+
+$y = \beta_b + \beta_T + \varepsilon$
+
+This means that the mean sales for top display height is $\mu_T = \beta_B + \beta_T$
+
+### b.
+
+```{r 421b}
+anova(model)
+```
+
+$$
+\begin{aligned}
+H_0: \beta_M = \beta_T = 0\\
+or\\
+H_0: \mu_B = \mu_M = \mu_T
+\end{aligned}
+$$
+
+$H1: $ at least one of $\beta_M$ or $\beta_T \ne 0$
+  
+### c.
+
+From 4.21 a, $\mu_B = \beta_B$, $\mu_M = \beta_B + \beta_M$ and $\mu_T = \beta_B + \beta_T$
+
+$$
+\begin{aligned}
+\mu_M - \mu_B = (\beta_B + \beta_M) - \beta_B = \beta_M\\
+\mu_T - \mu_B = (\beta_B + \beta_T) - \beta_B = \beta_T\\
+\mu_M - \mu_T = (\beta_B + \beta_M) - (\beta_B + \beta_T)= \beta_M - \beta_T
+\end{aligned}
+$$
+
+$$
+\begin{aligned}
+b_0 = 55.8, b_1 = 21.4, b_2 = -4.3\\
+s_{b_M} = 1.433, s_{b_T} = 1.433, \alpha = 0.05
+\end{aligned}
+$$
+
+95% CI of $\mu_M - \mu_Bs$ 
+
+$$
+\begin{aligned}
+b_M - t_{\alpha / 2}^{n - (k + 1)} * s_{b_M} \le \beta_M \le b_M + t_{\alpha / 2}^{n - (k + 1)} * s_{b_M}\\
+= 21.4 - t_{0.025}^{18 - (3 + 1)} * 1.433 \le \beta_M \le 21.4 + t_{0.025}^{18 - (3 + 1)} * 1.433\\
+= 21.4 - 2.144787 * 1.433 \le \beta_M \le 21.4 + 2.144787 * 1.433\\
+= 18.32652 \le \beta_M \le 24.47348
+\end{aligned}
+$$
+
+95% CI of $\mu_T - \mu_B$
+
+$$
+\begin{aligned}
+b_T - t_{\alpha / 2}^{n - (k + 1)} * s_{b_T} \le \beta_T \le b_T + t_{\alpha / 2}^{n - (k + 1)} * s_{b_T}\\
+= -4.3 - t_{0.025}^{18 - (3 + 1)} * 1.433 \le \beta_T \le -4.3 + t_{0.025}^{18 - (3 + 1)} * 1.433\\
+= -4.3 - 2.144787 * 1.433 \le \beta_T \le -4.3 + 2.144787 * 1.433\\
+= -7.37348 \le \beta_T \le -1.22652
+\end{aligned}
+$$
+
+Both the inervals do not include 0, so we reject the null hypothesis.
+
+### d.
+
+```{r 421d}
+predict.lm(model, newdata = data.frame(DM = 1, DT = 0), interval = "confidence")
+predict.lm(model, newdata = data.frame(DM = 1, DT = 0), interval = "prediction")
+```
+
+95% CI = (75.04032,79.35968)
+95% PI = (71.48602 82.91398)
+
+### e.
+
+```{r 421e}
+DB = 1 * !DM & !DT
+model = lm(Sales ~ factor(DB) +factor(DM))
+summary(model)
+```
+
+p-value = $2.736 * 10^{-11}$, this means that the difference in means is significant
+
+$b_M = 25.7, s_{b_M} = 1.433$
+
+95% CI
+
+$$
+\begin{aligned}
+b_M - t_{\alpha / 2}^{n - (k + 1)} * s_{b_M} \le \beta_M \le b_M + t_{\alpha / 2}^{n - (k + 1)} * s_{b_M}\\
+= 25.7 - t_{0.025}^{18 - (3 + 1)} * 1.433 \le \beta_M \le 25.7 + t_{0.025}^{18 - (3 + 1)} * 1.433\\
+= 25.7 - 2.144787 * 1.433 \le \beta_M \le 25.7 + 2.144787 * 1.433\\
+= 22.62652 \le \beta_M \le 28.77348
+\end{aligned}
+$$
+
+Point estimate of $b_M = 25.7$ is within the 95% confidence interval.

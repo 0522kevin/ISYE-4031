@@ -1,0 +1,253 @@
+---
+title: "HW 7"
+author: "Kevin Ahn"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+
+# Question 5.1
+
+```{r 51}
+data = read.table("5-6.txt", header = TRUE)
+attach(data)
+model = lm(Hours ~ BedDays + Length + Load + Pop + Xray)
+summary(model)
+anova(model)
+```
+
+## a.
+
+```{r 51a}
+library(corrplot)
+library(car)
+corr = cor(data)
+print(corr)
+vif(model)
+```
+The correlation between Load and Beddays have a correlation of 0.9999 which is the largest
+The correlation between Hours and Beddays have a correlation of 0.9860 which is the second largest
+The correlation between Load and Hours have a correlation of 0.9856 which is the third largest
+
+Load has the highest VIF factor of 9597.571
+Beddays has the second highest VIF factor of 8933.0865
+Load has the third highest VIF factor of 23.2939
+
+## b.
+
+Load, Beddays, and Pop are most strongly involved in multicollinearity because these variables have a high correlation and high VIF values.
+
+## c.
+
+The summary shows that the coefficients of length, load, and pop are negative. The coefficients are intuitively expected to be positive, which is another indication of multicollinearity.
+
+## d.
+
+The independent variables have a pvalue of 0.6174, 0.8740, 0.5685, and 0.0234. These values are much larger than 0.0001, which is another indication of multicollinearity.
+
+## e.
+
+### 1.
+
+```{r 51e1}
+library(leaps)
+model = regsubsets(Hours ~ ., data = data, nbest = 3, method = "exhaustive")
+summarymodel = summary(model)
+rsq = round(summarymodel$rsq*100, digits = 2)
+adjr2 = round(summarymodel$adjr2*100, digits = 2)
+cp = round(summarymodel$cp, digits = 2)
+k = as.numeric(rownames(summarymodel$which))
+n = model$nn
+sse = round(summarymodel$rss, digits = 2)
+s = round(sqrt(sse / (n - (k + 1))), digits = 2)
+aic = round(2 * (k + 1) + n * log(sse / n), digits = 2)
+cbind(rsq, adjr2, cp, s, sse, aic, summarymodel$outmat)
+```
+
+### 2.
+
+```{r 51e2}
+model1 = lm(Hours ~ Xray + BedDays + Length)
+model2 = lm(Hours ~ Xray + BedDays + Length + Pop)
+```
+
+Model 1 has an adjusted $\bar R^2$ value of 98.8, s value of 614.78, and $C_p$ value of 2.9 whereas Model 2 has an adjusted $\bar R^2$ value of 98.8, s value of 615.49, and $C_p$ value of 4
+
+Model 1 has a smaller s and a smaller $C_p$ than model 2. Model 2 has a larger adjusted $\bar R^2$
+
+### 3.
+
+```{r 51e3}
+predict(model1, newdata = data.frame(Xray = 56194, BedDays = 14077.8, Length = 6.89),
+        interval = "prediction", level = 0.99)
+predict(model2, newdata = data.frame(Xray = 56194, BedDays = 14077.8, Length = 6.89, Pop = 329.7), 
+        interval = "prediction", level = 0.99)
+```
+
+Model 1 has a shorter prediction interval than Model 2
+
+### 4.
+
+```{r 51e4}
+mini = lm(Hours ~ 1, data = data)
+full = lm(Hours ~ ., data = data)
+forward = step(mini, list(upper = full), direction = "forward")
+backward = step(full, direction = "backward")
+forward
+backward
+```
+
+The best model is Model 1
+
+### 5.
+
+Model 1 outperforms Model 2 in all aspects. Model 1 can be considered the best fit for the given dataset. Comparing the two models using values such as $\bar R^2$, $C_P$, AIC, and s, model 1's values shows that the model 1 is better.
+
+# Question 6.3
+
+```{r 63}
+data = read.table("6-8.txt", header = TRUE)
+attach(data)
+```
+
+## a.
+
+Bike sales have increased over time. However, it is evident that the bicycle sales have a demand cycle, where the sales in certain quarters are higher than sales in other quarters. 
+
+## b.
+
+The demand cycle is 4 periods. The change in volume between the 4 periods are seemingly constant. Because there is a constant magnitude of change, the constant seasonal variation is justified.
+
+## c.
+
+```{r 63c}
+n = length(Bikes)
+t = 1:16
+quarters = rep(c(1, 2, 3, 4), 4)
+model = lm(Bikes ~ t + factor(quarters))
+summary(model)
+```
+All p-values for independent variables are much smaller than 0.001, which means that the variables are significant.
+
+## e.
+
+```{r 63e}
+predictions = predict(model, newdata = data.frame(t = 17:20, quarters = 1:4), data = data)
+```
+
+$\hat y_{17} = 17.25, \hat y_{18} = 38.75, \hat y_{19} = 51.75, \hat y_{20} = 23.25$
+
+## f.
+
+$y_t = 8.75 + 0.5 * t + 21 * Q_2 + 33.5 * Q_3 +4.5 * Q_4 + \varepsilon_t$
+
+$\hat y_{17} = 8.75 + 0.5 * 17 + 21 * 0 + 33.5 * 0  + 4.5 * 0 = 17.25$
+
+$\hat y_{18} = 8.75 + 0.5 * 18 + 21 * 1 + 33.5 * 0  +4.5 * 0 = 38.75$
+
+## g.
+
+```{r 63g}
+predict(model, newdata = data.frame(t = 17:20, quarters = 1:4), data = data, interval = "prediction", level = 0.9)
+```
+$$
+\begin{aligned}
+\hat y_{17} = [15.73652, 18.76348] \\
+\hat y_{18} = [37.23652, 40.26348] \\
+\hat y_{19} = [50.23652, 53.26348] \\
+\hat y_{20} = [21.73652, 24.76348] \\
+\end{aligned}
+$$
+
+## h.
+
+```{r 63h}
+library(lmtest)
+dwtest(model)
+```
+$H_0: $ Error terms are not positively autocorrelated
+$H_1: $ Error terms are positively autocorrelated
+
+Fail to reject null hypothesis as 0.615 > 0.05
+There is no positive autocorrelation.
+
+## Extra
+
+```{r 63extra}
+color = c("blue", "red", "green")
+plot.ts(data, type = "l", col = color[1], lwd = 2, xlim = c(0, 22), ylim = c(-10, 55))
+lines(t, model$fitted.values, col = color[2], lwd = 2)
+lines(c(17:20), predictions, col = color[3], lwd = 2)
+legend(16, 10.5, legend = c("Original", "Fitted", "Prediction"), col = color, lty = c(1, 1, 1), lwd = 1)
+```
+
+# Question 6.6
+
+```{r 66}
+data = read.table("6-10.txt", header = TRUE)
+t = 1:length(data$Cases)
+plot(log(data$Cases))
+```
+
+## a.
+
+Growth curve model is an appropriate method to forecast future observations because the data is exponentially distributed.
+
+## b.
+
+Linearized data can be obtained by taking the natural log of raw data.
+
+## c.
+
+$$
+\begin{aligned}
+y_t = \beta_0 * \beta_1^t * \varepsilon_t \\
+ln(y_t) = ln(\beta_0) + t * ln(\beta_1) + ln(\varepsilon_t) \\
+ln(y_t) = \alpha_0 + \alpha_1 * t + \mu_t
+\end{aligned}
+$$
+
+## d.
+
+### 1.
+
+```{r 66d1}
+model = lm(log(data$Cases) ~ t)
+summary(model)
+```
+
+$$
+\begin{aligned}
+\hat \alpha_0 = -0.54334 \\
+\hat \alpha_1 = 0.38997 \\
+ln(\hat y) = -0.54334 + 0.38997 * t
+\end{aligned}
+$$
+
+### 2.
+
+$e^{\alpha_1} = e^{0.38997} = 1.476936$
+
+Growth Rate = 1.476936 - 1 = 0.476936
+
+### 3.
+
+```{r 66d3}
+predict.lm(model, newdata = data.frame(t = 12))
+```
+
+$$
+\begin{aligned}
+ln(\hat y_{12}) = 4.13629 \\
+y_{12} = 62.57025
+\end{aligned}
+$$
+
+### 4.
+
+```{r 66d4}
+values = predict.lm(model, newdata = data.frame(t = 12), interval = "prediction", level = 0.99)
+exp(values)
+```
+
+The 99% prediction interval is [40.31575, 97.10936]. It can be said that the data will fall within this interval with 99% certainty.

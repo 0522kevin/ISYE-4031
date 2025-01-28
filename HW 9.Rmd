@@ -1,0 +1,217 @@
+---
+title: "HW 9"
+author: "Kevin Ahn"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+# Question 9.1
+
+## a.
+
+```{r 91a}
+library(forecast)
+data = read.table("9-7.txt", header = TRUE)
+plot.ts(data$ToothPaste)
+acf(data$ToothPaste)
+```
+
+From the plot, it is evident that the weekly sales has an upward trend over time. The slope is reducing over time. This leads to the conclusion that the data is not stationary. SAC does not cut off as well.
+
+## b.
+
+```{r 91b}
+firstDiff = diff(data$ToothPaste)
+data$ToothPaste[3]
+data$ToothPaste[2]
+data$ToothPaste[1]
+```
+
+$y_3 = 244.09, y_2 = 239, y_1 = 235$
+
+First Difference: $z_t = y_t - y_{t-1}$
+
+$z_2 = 239 - 235 = 4$
+
+$z_3 = 244.09 - 239 = 5.09$
+
+## c.
+
+```{r 91c}
+plot.ts(firstDiff)
+acf(firstDiff)
+```
+
+In the time series plot, there is a fluctuation in the data about a certain mean, and the variance of fluctuation seems to be fairly consistent. By comparing the time series plots, it is evident that this first differences appear to be much more stationary than the original data. Looking at the SAC plot, there is a drop off after lag 3. First differences is more stationary than the original data.
+
+# Question 9.3
+
+## a.
+
+```{r 93a}
+acf(data$ToothPaste)
+pacf(data$ToothPaste)
+```
+
+SAC is gradually decreasing with no cut off but SPAC cuts off after lag 1. The data is not stationary.
+
+## b.
+
+```{r 93b}
+acf2 = acf(diff(data$ToothPaste))
+pacf(diff(data$ToothPaste))
+```
+
+SAC dies down quickly, and there is a drop off after some lags. SPAC drops off after lag 1. This data is stationary.
+
+## c.
+
+$s_{r_3} = \frac{\sqrt{(1+2\sum_{j = 1}^2 r^2_j)}}{\sqrt{n-b+1}}$
+
+```{r 93c}
+r1 = acf2[1]
+r2 = acf2[2]
+r3 = acf2[3]
+n = length(data$ToothPaste)
+r1
+r2
+r3
+n
+```
+
+$$
+\begin{aligned}
+s_{r_3} = \frac{\sqrt{(1+2\sum_{j = 1}^2 r^2_j)}}{\sqrt{n-b+1}} = \frac{\sqrt{1+2(0.643 ^2+0.321^2)}}{\sqrt{90-1+1}} \\
+s_{r_3} = \frac{\sqrt{1+2\times 0.51649}}{\sqrt{90}} = \sqrt{\frac{2.03298}{90}} = 0.1502953 \\
+r_3 = 0.246 \\
+t_{r_3} = \frac{r_3}{s_{r_3}} = \frac{0.246}{0.1502953} = 1.636778
+\end{aligned}
+$$
+
+## d.
+
+$$
+\begin{aligned}
+r_{11} = r_1 = 0.643 \\
+r_{22} = \frac{r_2 - \sum_{j=1}^{1} r_{1,j}\cdot r_1}{1- \sum_{j=1}^{1} r_{1,j}\cdot r_1} \\
+r_{22} = \frac{r_2 - r_{11}\times r_1}{1- r_{11}\times r_1} \\
+r_{22} = \frac{0.321-0.643^2}{1-0.643^2}= \frac{-0.092449}{0.586551} = -0.1576146 \\
+r_{33} = \frac{r_3 - \sum_{j=1}^{2} r_{2,j}\cdot r_{3-j}}{1- \sum_{j=1}^{2} r_{2,j}\cdot r_{j}} \\
+r_{33} = \frac{r_3 - r_{21}\cdot r_{2} - r_{22}\cdot r_{1}}{1- r_{21}\cdot r_{1} - r_{22}\cdot r_{2}} \\
+r_{21} = r_{11} - r_{22}\cdot r_{11} = 0.643 - (-0.1576146)\times 0.643 = 0.7443462 \\
+r_{33} = \frac{0.246 - 0.7443462\times 0.321 - (-0.1576146)\times 0.643}{1- 0.7443462\times 0.643 - (-0.1576146)\times 0.321} \\
+r_{33} = \frac{0.1084111}{0.5719797} = 0.1895366
+\end{aligned}
+$$
+
+## e.
+
+SAC drops off quickly. SPAC drops off as well.
+
+# Question 9.4
+
+## a.
+
+SAC for original data gradually decreases without cut off. The original data is not stationary, so autoregressive model cannot be used directly. SAC of first differences drops off, and SPAC of first differences cuts off after lag 1. Autoregressive model with p = 1 can be used.
+
+$z_t = \delta + a_t + \phi_1(z_{t-1}) = y_t - y_{t-1}$
+
+$\bar z = \frac{\sum_{t=b}^n z_t}{n-b+1}$
+
+$s_z = \sqrt{\frac{\sum_{t=b}^n (z_t - \bar z)^2}{(n-b+1)-1}}$
+
+```{r 94a}
+b = 2
+zbar = (sum(firstDiff))/(n-b+1)
+s_z = sqrt(sum((firstDiff - zbar)^2)/((n-b+1)-1))
+```
+
+$\bar z = 8.926742, s_z =3.637668$
+
+$\frac{\bar z}{s_z/\sqrt{n-b+1}} = \frac{8.926742}{3.637668/\sqrt{90-2+1}} = 23.15074 >> 2$
+
+$\delta$ is included in the equation.
+
+## b.
+
+```{r 94b}
+acf1 = acf(diff(data$ToothPaste))
+pacf(diff(data$ToothPaste))
+```
+
+SAC drops off after a few lags. SPAC drops off as well. First differences is stationary.
+
+## c.
+
+$$
+\begin{aligned}
+z_t = y_t - y_{t-1} \\
+z_{t-1} = y_{t-1} - y_{t-2} \\
+z_t = \delta + a_t + \phi(z_{t-1}) \implies y_t - y_{t-1} = \delta + a_t + \phi (y_{t-1} - y_{t-2}) \\
+y_t = \delta + a_t + \phi (y_{t-1} - y_{t-2}) + y_{t-1} \\
+y_t = \delta + a_t + y_{t-1} (1 + \phi_1) - \phi_1\cdot y_{t-2}
+\end{aligned}
+$$
+
+## d.
+
+$\delta$ is a constant term parameter. When $\delta$ is 0, there is no trend in the original data. This determines whether the time series data is stochastic.
+
+## e.
+
+```{r 94e}
+model = arima(firstDiff, c(1, 0, 0), include.mean = TRUE)
+summary(model)
+model$coef
+```
+
+$$
+\begin{aligned}
+\phi_1 = 0.6516433 \\
+\hat \mu = 8.8698453 \\
+y_t = \delta + a_t + y_{t-1} (1 + \phi_1) - \phi_1\cdot y_{t-2} \\
+\hat \delta = \hat\mu(1-\phi) \\
+\hat \delta = 8.869845(1-0.6516433) \\
+\delta = 3.08987 \\
+\hat y_t = 3.08987 + y_{t-1} (1 + 0.6516433) - 0.6516433\cdot y_{t-2} \\
+\hat y_t = 3.08987 + 1.6516433 \cdot y_{t-1} - 0.6516433\cdot y_{t-2}
+\end{aligned}
+$$
+
+## f.
+
+```{r 94f}
+y1 = data$ToothPaste[1]
+y2 = data$ToothPaste[2]
+y89 = data$ToothPaste[89]
+y90 = data$ToothPaste[90]
+```
+
+$$
+\begin{aligned}
+\hat y_3 = 3.08987 + 1.6516433 \cdot y_{2} - 0.6516433\cdot y_{1} \\
+\hat y_3 = 3.08987 + 1.6516433 \cdot 239 - 0.6516433\cdot 235 \\
+\hat y_3 = 244.6964 \\
+\hat y_{91} = 3.08987 + 1.6516433 \cdot y_{90} - 0.6516433\cdot y_{89} \\
+\hat y_{91} = 3.08987 + 1.6516433 \cdot 1029.48  - 0.6516433 \cdot 1018.42 \\
+\hat y_{91} = 1039.777 \\
+\hat y_{92} = 3.08987 + 1.6516433 \cdot y_{91} - 0.6516433c\cdot y_{90} \\
+\hat y_{92} = 3.08987 + 1.6516433 \cdot 1039.777 - 0.6516433\cdot 1029.48 \\
+\hat y_{92} = 1049.577
+\end{aligned}
+$$
+
+```{r 94f2}
+forecast(model, h = 3)
+```
+
+Point forecast of 90 is $z_{91}$
+
+$$
+\begin{aligned}
+z_{91} = \hat y_{91} - y_{90} = 1039.777-1029.48 = 10.297 \\
+z_{92} = \hat y_{92} - \hat y_{91} = 1049.577 - 1039.777 = 9.8
+\end{aligned}
+$$
+
+The two values match very closely.
